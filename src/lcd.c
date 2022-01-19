@@ -33,6 +33,11 @@ void process_input(lcd* l, bool enable, bool rwb, bool data, uint8_t input)
   if (enable && !l->enable_latch) { // rising edge on enable
     l->enable_latch = true;
     trace_emu("LCD rising edge on enable\n");
+    if (rwb && !data) {
+      // There's no command to check - this is read busy flag
+      trace_emu("LCD read busy\n");
+      process_command(l, rwb, l->data);
+    }
     if (!l->initialized && !(input & 0xc0) && (input & CMD_FUNCTION_SET) && !rwb) {
       trace_emu("LCD initializing \n");
       l->initialized = true;
