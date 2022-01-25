@@ -180,7 +180,7 @@ void update_gui(cpu *m) {
       m->sr & 0x02 ? 'Z' : '-',
       m->sr & 0x01 ? 'C' : '-',
       m->cycle);
-    mvwprintw(wnd_monitor_content, 3, 0, "Clock mode: %s", m->clock_mode == CLOCK_FAST ? "FAST" : m->clock_mode == CLOCK_SLOW ? "SLOW" : "STEP");
+    mvwprintw(wnd_monitor_content, 3, 0, "Clock mode: %s", m->clock_mode == CLOCK_TURBO ? "TURBO" : m->clock_mode == CLOCK_FAST ? "FAST " : m->clock_mode == CLOCK_SLOW ? "SLOW " : "STEP ");
     wrefresh(wnd_monitor_content);
 
     // populate memory monitor
@@ -224,6 +224,10 @@ void update_gui(cpu *m) {
 
       switch (m->clock_mode) {
         case CLOCK_SPRINT:
+        case CLOCK_TURBO:
+          read = getch();
+          keep_going = true;
+          break;
         case CLOCK_FAST:
           halfdelay(1);
           read = getch();
@@ -258,6 +262,11 @@ void update_gui(cpu *m) {
         case KEY_F(8): // F8
           if (!(m->clock_mode == CLOCK_SPRINT)) {
             m->clock_mode = CLOCK_FAST;
+          }
+          break;
+        case KEY_F(9): // F9
+          if (!(m->clock_mode == CLOCK_SPRINT)) {
+            m->clock_mode = CLOCK_TURBO;
           }
           break;
         case 10:

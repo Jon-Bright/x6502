@@ -24,9 +24,10 @@
 #define EMU_FLAG_WAIT_FOR_INTERRUPT 0x02
 
 #define CLOCK_SPRINT 0x00
-#define CLOCK_FAST   0x01
-#define CLOCK_SLOW   0x02
-#define CLOCK_STEP   0x04
+#define CLOCK_TURBO  0x01
+#define CLOCK_FAST   0x02
+#define CLOCK_SLOW   0x04
+#define CLOCK_STEP   0x08
 
 typedef struct {
     // clock mode
