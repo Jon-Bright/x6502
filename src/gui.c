@@ -225,6 +225,7 @@ void update_gui(cpu *m) {
       switch (m->clock_mode) {
         case CLOCK_SPRINT:
         case CLOCK_TURBO:
+          cbreak();
           read = getch();
           keep_going = true;
           break;
