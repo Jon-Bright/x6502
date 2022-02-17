@@ -18,6 +18,8 @@ cpu * new_cpu() {
     m->l = new_lcd();
     m->k = new_keys();
     m->cycle = 0;
+    m->run_to_nop = false;
+    m->run_to_ret = 0;
     return m;
 }
 

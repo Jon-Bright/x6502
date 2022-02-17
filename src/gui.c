@@ -170,6 +170,21 @@ void update_gui(cpu *m) {
 
     // start by populating the monitor
     mvwprintw(wnd_monitor_content, 0, 0, "PC: %04x, OP: %02x (%s)", m->pc_actual, m->opcode, translate_opcode(m->opcode));
+    if (m->run_to_nop && m->opcode == 0xea) {
+      // 0xea is NOP - we use this as a breakpoint
+      m->clock_mode = CLOCK_STEP;
+      m->run_to_nop = false;
+    } else if (m->run_to_ret && m->opcode == 0x60) {
+      // 0x60 is RTS
+      m->run_to_ret--;
+      if (!m->run_to_ret) {
+        // We're returning from the frame where run-to-ret was requested
+        m->clock_mode = CLOCK_STEP;
+      }
+    } else if (m->run_to_ret && m->opcode == 0x20) {
+      // 0x20 is JSR. We want to see an additional return after this, then.
+      m->run_to_ret++;
+    }
     mvwprintw(wnd_monitor_content, 1, 0, "ACC: %02x, X: %02x, Y: %02x, SP: %02x", m->ac, m->x, m->y, m->sp);
     mvwprintw(wnd_monitor_content, 2, 0, "SR: %c%c-%c%c%c%c%c, cycle: %08x",
       m->sr & 0x80 ? 'N' : '-',
@@ -181,6 +196,16 @@ void update_gui(cpu *m) {
       m->sr & 0x01 ? 'C' : '-',
       m->cycle);
     mvwprintw(wnd_monitor_content, 3, 0, "Clock mode: %s", m->clock_mode == CLOCK_TURBO ? "TURBO" : m->clock_mode == CLOCK_FAST ? "FAST " : m->clock_mode == CLOCK_SLOW ? "SLOW " : "STEP ");
+    if (m->run_to_nop) {
+      mvwprintw(wnd_monitor_content, 3, 18, "RTN");
+    } else {
+      mvwprintw(wnd_monitor_content, 3, 18, "   ");
+    }
+    if (m->run_to_ret) {
+      mvwprintw(wnd_monitor_content, 3, 22, "RTR %d", m->run_to_ret);
+    } else {
+      mvwprintw(wnd_monitor_content, 3, 22, "      ");
+    }
     wrefresh(wnd_monitor_content);
 
     // populate memory monitor
@@ -312,6 +337,18 @@ void update_gui(cpu *m) {
             memory_start+=0x10;
           } else {
             memory_start = 0xfe;
+          }
+          break;
+        case 'n':
+          if (!(m->clock_mode == CLOCK_SPRINT)) {
+            m->clock_mode = CLOCK_TURBO;
+            m->run_to_nop = true;
+          }
+          break;
+        case 'r':
+          if (!(m->clock_mode == CLOCK_SPRINT)) {
+            m->clock_mode = CLOCK_TURBO;
+            m->run_to_ret = 1;
           }
           break;
       } 

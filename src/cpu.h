@@ -66,6 +66,12 @@ typedef struct {
     lcd* l;
     // keys
     keys* k;
+    // whether we should switch to clock mode STEP when the next NOP is encountered
+    bool run_to_nop;
+    // if >0, will be incremented/decremented when encountering JSR/RTS respectively and we'll switch to
+    // STEP when it's decremented to zero, allowing "run until return"
+    int run_to_ret;
+
 } cpu;
 
 cpu * new_cpu();
